@@ -35,7 +35,7 @@ export function MetricCard({
           {icon}
           {label}
           {stale ? (
-            <span className="ml-1 rounded bg-amber-500/15 px-1 text-[10px] normal-case text-amber-300">
+            <span className="ml-1 rounded bg-amber-500/15 px-1 text-[10px] normal-case text-amber-700 dark:text-amber-300">
               stale
             </span>
           ) : null}

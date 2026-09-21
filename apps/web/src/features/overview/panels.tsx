@@ -38,7 +38,7 @@ export function ServicesMini(): React.JSX.Element {
     <Card>
       <CardHeader>
         <CardTitle>Services · {data?.services.length}</CardTitle>
-        <Link to="/services" className="text-xs text-sky-300 hover:underline">
+        <Link to="/services" className="text-xs text-accent-strong hover:underline">
           View all
         </Link>
       </CardHeader>
@@ -89,7 +89,7 @@ export function DockerMini(): React.JSX.Element {
     <Card>
       <CardHeader>
         <CardTitle>Docker · {data.running} running</CardTitle>
-        <Link to="/docker" className="text-xs text-sky-300 hover:underline">
+        <Link to="/docker" className="text-xs text-accent-strong hover:underline">
           Manage
         </Link>
       </CardHeader>
@@ -133,7 +133,7 @@ export function NetworkMini(): React.JSX.Element {
         <CardTitle>
           Network · {online}/{nodes.length} online
         </CardTitle>
-        <Link to="/network" className="text-xs text-sky-300 hover:underline">
+        <Link to="/network" className="text-xs text-accent-strong hover:underline">
           Topology
         </Link>
       </CardHeader>

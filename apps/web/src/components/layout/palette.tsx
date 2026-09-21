@@ -39,7 +39,7 @@ export function CommandPalette(): React.JSX.Element {
                   setOpen(false);
                   nav(c.run);
                 }}
-                className="rounded-md px-2 py-1.5 text-left text-[13px] text-ink-2 hover:bg-white/5 hover:text-ink"
+                className="rounded-md px-2 py-1.5 text-left text-[13px] text-ink-2 hover:bg-hover hover:text-ink"
               >
                 {c.label}
               </button>

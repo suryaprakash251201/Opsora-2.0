@@ -25,12 +25,12 @@ export function AppShell({ updatedAt }: { updatedAt?: string }): React.JSX.Eleme
   return (
     <div className="flex h-full flex-col bg-void text-ink">
       <TopBar updatedAt={updatedAt} />
-      <div className="flex min-h-0 flex-1">
+      <div className="flex min-h-0 flex-1 gap-2 p-2 pt-0">
         {open ? (
           <aside
             className={cn(
-              "shrink-0 border-r border-edge bg-panel",
-              collapsed ? "hidden w-12 sm:block" : "hidden w-56 md:block",
+              "hidden shrink-0 flex-col overflow-hidden rounded-2xl border border-edge bg-panel shadow-sm transition-all md:flex",
+              collapsed ? "w-[68px]" : "w-60",
             )}
           >
             <Sidebar />
@@ -61,7 +61,7 @@ function MobileLink({ to, label }: { to: string; label: string }): React.JSX.Ele
   return (
     <a
       href={to}
-      className="rounded-md px-3 py-1.5 text-xs text-ink-2 hover:bg-white/5 hover:text-ink"
+      className="rounded-lg px-3 py-1.5 text-xs text-ink-2 hover:bg-hover hover:text-ink"
     >
       {label}
     </a>

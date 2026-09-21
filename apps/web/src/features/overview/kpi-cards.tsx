@@ -10,6 +10,7 @@ import {
   useStorage,
 } from "../../lib/queries";
 import { Sparkline } from "../../components/charts/echart";
+import { accentHex } from "../../lib/theme";
 import { MetricCard } from "../../components/ui/metric-card";
 import { formatBps } from "@opsora/utils";
 
@@ -45,7 +46,7 @@ export function KpiCards(): React.JSX.Element {
             ? `${host.tempCelsius.toFixed(0)}°C · ${overview?.host.hostname ?? ""}`
             : (overview?.host.hostname ?? "—")
         }
-        spark={useSpark(cpuSeries, "#7dd3fc")}
+        spark={useSpark(cpuSeries, accentHex())}
         tone={
           host?.cpuPercent != null && host.cpuPercent >= 95
             ? "crit"

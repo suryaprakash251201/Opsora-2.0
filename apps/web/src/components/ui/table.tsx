@@ -15,7 +15,7 @@ export function Table({
 export function THead(props: React.HTMLAttributes<HTMLTableSectionElement>): React.JSX.Element {
   return (
     <thead
-      className="border-b border-edge bg-white/[0.02] text-[11px] uppercase tracking-wide text-ink-3"
+      className="border-b border-edge bg-hover/60 text-[11px] uppercase tracking-wide text-ink-3"
       {...props}
     />
   );
@@ -27,7 +27,7 @@ export function TRow({
 }: React.HTMLAttributes<HTMLTableRowElement>): React.JSX.Element {
   return (
     <tr
-      className={cn("border-b border-edge/60 last:border-0 hover:bg-white/[0.02]", className)}
+      className={cn("border-b border-edge/60 last:border-0 hover:bg-hover/60", className)}
       {...props}
     />
   );

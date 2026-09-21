@@ -1,20 +1,93 @@
 @import "tailwindcss";
 
-@theme {
-  --color-void: #090b10;
-  --color-panel: #0e1219;
-  --color-panel-2: #131926;
-  --color-edge: #1e2635;
-  --color-ink: #e8edf5;
-  --color-ink-2: #9aa6bb;
-  --color-ink-3: #647084;
-  --color-ok: #34d399;
-  --color-warn: #fbbf24;
-  --color-crit: #f87171;
-  --color-info: #38bdf8;
-  --color-accent: #7dd3fc;
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-void: var(--void);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-edge: var(--edge);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-hover: var(--hover);
+  --color-skeleton: var(--skeleton);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+/* Light theme (default) */
+:root {
+  --void: #eef1f6;
+  --panel: #ffffff;
+  --panel-2: #f4f6fa;
+  --edge: #dfe5ee;
+  --ink: #0f172a;
+  --ink-2: #475569;
+  --ink-3: #8a97a8;
+  --hover: rgb(15 23 42 / 0.05);
+  --skeleton: rgb(15 23 42 / 0.07);
+  color-scheme: light;
+}
+
+/* Dark theme — primary Opsora experience */
+.dark {
+  --void: #090b10;
+  --panel: #0e1219;
+  --panel-2: #131926;
+  --edge: #1e2635;
+  --ink: #e8edf5;
+  --ink-2: #9aa6bb;
+  --ink-3: #647084;
+  --hover: rgb(255 255 255 / 0.05);
+  --skeleton: rgb(255 255 255 / 0.06);
+  color-scheme: dark;
+}
+
+/* Accent ramps — --accent for fills, --accent-strong for text on surfaces */
+:root[data-accent="sky"],
+:root:not([data-accent]) {
+  --accent: #0284c7;
+  --accent-strong: #0369a1;
+}
+.dark[data-accent="sky"],
+.dark:not([data-accent]) {
+  --accent: #38bdf8;
+  --accent-strong: #7dd3fc;
+}
+:root[data-accent="emerald"] {
+  --accent: #059669;
+  --accent-strong: #047857;
+}
+.dark[data-accent="emerald"] {
+  --accent: #34d399;
+  --accent-strong: #6ee7b7;
+}
+:root[data-accent="violet"] {
+  --accent: #7c3aed;
+  --accent-strong: #6d28d9;
+}
+.dark[data-accent="violet"] {
+  --accent: #a78bfa;
+  --accent-strong: #c4b5fd;
+}
+:root[data-accent="amber"] {
+  --accent: #d97706;
+  --accent-strong: #b45309;
+}
+.dark[data-accent="amber"] {
+  --accent: #fbbf24;
+  --accent-strong: #fcd34d;
+}
+:root[data-accent="rose"] {
+  --accent: #e11d48;
+  --accent-strong: #be123c;
+}
+.dark[data-accent="rose"] {
+  --accent: #fb7185;
+  --accent-strong: #fda4af;
 }
 
 html,
@@ -24,36 +97,53 @@ body,
 }
 
 body {
-  background: var(--color-void);
-  color: var(--color-ink);
+  background: var(--void);
+  color: var(--ink);
   font-family: var(--font-sans);
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: rgba(125, 211, 252, 0.25);
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 /* Restrained scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #263044 transparent;
+  scrollbar-color: var(--edge) transparent;
 }
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 *::-webkit-scrollbar-thumb {
-  background: #263044;
+  background: var(--edge);
   border-radius: 8px;
 }
 
 /* Visible focus ( §36 ) */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* Live indicator — soft ping ring around the status dot */
+@keyframes live-ping {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--live-color, #34d399) 55%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.live-pulse {
+  animation: live-ping 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

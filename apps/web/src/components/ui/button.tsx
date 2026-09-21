@@ -7,11 +7,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-sky-400/15 text-sky-200 border border-sky-400/25 hover:bg-sky-400/25",
-        secondary: "bg-white/5 text-zinc-200 border border-white/10 hover:bg-white/10",
-        ghost: "text-zinc-300 hover:bg-white/5 hover:text-zinc-100",
-        danger: "bg-red-500/15 text-red-200 border border-red-500/30 hover:bg-red-500/25",
-        subtle: "text-zinc-400 hover:text-zinc-100 hover:bg-white/5",
+        default: "bg-accent/15 text-accent-strong border border-accent/25 hover:bg-accent/25",
+        secondary: "bg-hover text-ink border border-edge hover:bg-skeleton",
+        ghost: "text-ink-2 hover:bg-hover hover:text-ink",
+        danger:
+          "bg-red-500/15 text-red-700 border border-red-500/30 hover:bg-red-500/25 dark:text-red-200",
+        subtle: "text-ink-3 hover:text-ink hover:bg-hover",
       },
       size: {
         sm: "h-7 px-2.5",

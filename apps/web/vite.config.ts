@@ -7,6 +7,7 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
+    host: "0.0.0.0", // home-lab: reachable from LAN/Tailscale, not just loopback
     proxy: {
       "/api": {
         target: process.env.VITE_API_URL ?? "http://localhost:4100",

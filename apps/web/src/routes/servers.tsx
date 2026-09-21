@@ -5,6 +5,7 @@ import { useMetricsHistory } from "../lib/queries";
 import { useUi } from "../stores/ui";
 import { Card, CardBody, CardHeader, CardTitle } from "../components/ui/card";
 import { Skeleton } from "../components/ui/skeleton";
+import { accentHex } from "../lib/theme";
 
 const LoadChart = lazy(() =>
   import("../components/charts/echart").then((m) => ({
@@ -20,7 +21,7 @@ const LoadChart = lazy(() =>
                 type: "line",
                 showSymbol: false,
                 data: pts.map((p) => [p.t, p.cpu]),
-                lineStyle: { color: "#7dd3fc" },
+                lineStyle: { color: accentHex() },
               },
               {
                 name: "mem",

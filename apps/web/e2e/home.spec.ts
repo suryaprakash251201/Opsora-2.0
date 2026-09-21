@@ -2,7 +2,13 @@ import { expect, test } from "@playwright/test";
 
 test("home loads and shows health", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /systems|status|unknown/i }).first()).toBeVisible({
+  await expect(
+    page
+      .getByRole("heading", {
+        name: /systems operational|action required|attention needed|status unknown/i,
+      })
+      .first(),
+  ).toBeVisible({
     timeout: 15_000,
   });
 });

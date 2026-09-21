@@ -29,7 +29,7 @@ export function StoragePage(): React.JSX.Element {
         </CardHeader>
         <CardBody className="grid gap-2.5">
           {data.local.map((d) => (
-            <div key={d.id} className="rounded-md border border-edge/70 bg-void/60 px-3 py-2.5">
+            <div key={d.id} className="rounded-md border border-edge/70 bg-panel-2 px-3 py-2.5">
               <div className="flex items-center gap-2 text-[13px]">
                 <span className="font-medium text-ink">{d.label}</span>
                 <span className="num text-xs text-ink-3">{d.mount}</span>
@@ -38,7 +38,7 @@ export function StoragePage(): React.JSX.Element {
                 </span>
               </div>
               <div
-                className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/5"
+                className="mt-2 h-1.5 overflow-hidden rounded-full bg-edge"
                 role="progressbar"
                 aria-valuenow={d.percent ?? undefined}
                 aria-valuemin={0}
@@ -46,7 +46,7 @@ export function StoragePage(): React.JSX.Element {
                 aria-label={`${d.label} usage`}
               >
                 <div
-                  className="h-full rounded-full bg-sky-400"
+                  className="h-full rounded-full bg-accent"
                   style={{ width: `${Math.min(100, d.percent ?? 0)}%` }}
                 />
               </div>

@@ -39,7 +39,7 @@ export function ServerList({ compact = false }: { compact?: boolean }): React.JS
       <CardHeader>
         <CardTitle>Servers · {data.servers.length}</CardTitle>
         {compact ? (
-          <Link to="/servers" className="text-xs text-sky-300 hover:underline">
+          <Link to="/servers" className="text-xs text-accent-strong hover:underline">
             View all
           </Link>
         ) : null}
@@ -49,7 +49,7 @@ export function ServerList({ compact = false }: { compact?: boolean }): React.JS
           <Link
             key={s.id}
             to="/servers"
-            className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-edge/70 bg-void/60 px-3 py-2.5 hover:border-white/15"
+            className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-edge/70 bg-panel-2 px-3 py-2.5 hover:border-accent/40"
           >
             <span className="flex min-w-36 items-center gap-2">
               <StatusDot status={s.online ? "online" : "offline"} />

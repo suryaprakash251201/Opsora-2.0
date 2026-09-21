@@ -1,14 +1,16 @@
 import { RouterProvider } from "react-router";
 import { QueryProvider } from "../providers/query-provider";
+import { applyTheme } from "../lib/theme";
 import { useUi } from "../stores/ui";
 import { router } from "./router";
 import * as React from "react";
 
 export function App(): React.JSX.Element {
   const theme = useUi((s) => s.theme);
+  const accent = useUi((s) => s.accent);
   React.useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-  }, [theme]);
+    applyTheme(theme, accent);
+  }, [theme, accent]);
   return (
     <QueryProvider>
       <RouterProvider router={router} />

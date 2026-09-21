@@ -1,10 +1,8 @@
 import type * as echarts from "echarts";
 import { useEffect, useRef, useState } from "react";
 import type * as React from "react";
+import { accentHex } from "../../lib/theme";
 import { useUi } from "../../stores/ui";
-
-const baseText = "#9aa6bb";
-const edge = "#1e2635";
 
 type EChartsModule = typeof echarts;
 
@@ -22,6 +20,17 @@ function useEcharts(): EChartsModule | null {
   return mod;
 }
 
+function chartChrome(theme: "dark" | "light"): {
+  text: string;
+  edge: string;
+  tooltipBg: string;
+  tooltipText: string;
+} {
+  return theme === "dark"
+    ? { text: "#9aa6bb", edge: "#1e2635", tooltipBg: "#131926", tooltipText: "#e8edf5" }
+    : { text: "#64748b", edge: "#dfe5ee", tooltipBg: "#ffffff", tooltipText: "#0f172a" };
+}
+
 /** Minimal Apache ECharts wrapper ( §28 ). Dark-first, reduced-motion aware. */
 export function EChart({
   option,
@@ -37,27 +46,28 @@ export function EChart({
   useEffect(() => {
     const el = ref.current;
     if (!el || !ec) return;
+    const chrome = chartChrome(theme);
     const chart = ec.init(el, undefined, { renderer: "canvas" });
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     chart.setOption(
       {
         animation: !reduced,
         backgroundColor: "transparent",
-        textStyle: { color: baseText, fontFamily: "Inter, sans-serif", fontSize: 11 },
+        textStyle: { color: chrome.text, fontFamily: "Inter, sans-serif", fontSize: 11 },
         grid: { left: 8, right: 8, top: 24, bottom: 0, containLabel: true },
         tooltip: {
           trigger: "axis",
-          backgroundColor: "#131926",
-          borderColor: edge,
-          textStyle: { color: "#e8edf5", fontSize: 12 },
+          backgroundColor: chrome.tooltipBg,
+          borderColor: chrome.edge,
+          textStyle: { color: chrome.tooltipText, fontSize: 12 },
         },
         xAxis: {
           type: "time",
-          axisLine: { lineStyle: { color: edge } },
+          axisLine: { lineStyle: { color: chrome.edge } },
           axisTick: { show: false },
           splitLine: { show: false },
         },
-        yAxis: { type: "value", splitLine: { lineStyle: { color: edge } } },
+        yAxis: { type: "value", splitLine: { lineStyle: { color: chrome.edge } } },
         ...option,
       },
       true,
@@ -82,7 +92,7 @@ export function EChart({
 /** Tiny sparkline for KPI cards. */
 export function Sparkline({
   values,
-  color = "#7dd3fc",
+  color = accentHex(),
 }: {
   values: (number | null)[];
   color?: string;

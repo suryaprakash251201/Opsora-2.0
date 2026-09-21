@@ -43,7 +43,7 @@ export function AlertsPanel(): React.JSX.Element {
       <Card>
         <CardHeader>
           <CardTitle>Alerts</CardTitle>
-          <Link to="/alerts" className="text-xs text-sky-300 hover:underline">
+          <Link to="/alerts" className="text-xs text-accent-strong hover:underline">
             Center
           </Link>
         </CardHeader>
@@ -60,7 +60,7 @@ export function AlertsPanel(): React.JSX.Element {
     <Card>
       <CardHeader>
         <CardTitle>Alerts · {data?.alerts.length}</CardTitle>
-        <Link to="/alerts" className="text-xs text-sky-300 hover:underline">
+        <Link to="/alerts" className="text-xs text-accent-strong hover:underline">
           Center
         </Link>
       </CardHeader>
@@ -68,7 +68,7 @@ export function AlertsPanel(): React.JSX.Element {
         {list.map((a) => (
           <div
             key={a.id}
-            className="flex items-start gap-2 rounded-md border border-edge/70 bg-void/60 px-2.5 py-2"
+            className="flex items-start gap-2 rounded-md border border-edge/70 bg-panel-2 px-2.5 py-2"
           >
             <StatusBadge status={a.severity} />
             <div className="min-w-0 flex-1">
@@ -121,7 +121,7 @@ export function ActivityFeed({ limit = 8 }: { limit?: number }): React.JSX.Eleme
       <Card>
         <CardHeader>
           <CardTitle>Recent activity</CardTitle>
-          <Link to="/activity" className="text-xs text-sky-300 hover:underline">
+          <Link to="/activity" className="text-xs text-accent-strong hover:underline">
             View all
           </Link>
         </CardHeader>
@@ -138,7 +138,7 @@ export function ActivityFeed({ limit = 8 }: { limit?: number }): React.JSX.Eleme
     <Card>
       <CardHeader>
         <CardTitle>Recent activity</CardTitle>
-        <Link to="/activity" className="text-xs text-sky-300 hover:underline">
+        <Link to="/activity" className="text-xs text-accent-strong hover:underline">
           View all
         </Link>
       </CardHeader>

@@ -2,7 +2,7 @@ import type * as React from "react";
 import { cn } from "../../lib/cn";
 
 export function Skeleton({ className }: { className?: string }): React.JSX.Element {
-  return <div aria-hidden className={cn("animate-pulse rounded-md bg-white/[0.06]", className)} />;
+  return <div aria-hidden className={cn("animate-pulse rounded-md bg-skeleton", className)} />;
 }
 
 export function CardSkeleton(): React.JSX.Element {

@@ -2,6 +2,7 @@ import type * as React from "react";
 import { useMetricsHistory } from "../../lib/queries";
 import { useUi } from "../../stores/ui";
 import { EChart } from "../../components/charts/echart";
+import { accentHex } from "../../lib/theme";
 import { Card, CardBody, CardHeader, CardTitle } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 
@@ -55,7 +56,7 @@ export function HistoryCharts(): React.JSX.Element {
             option={{
               legend: { textStyle: { color: "#9aa6bb" } },
               series: [
-                series((p) => p.cpu, "#7dd3fc", "cpu"),
+                series((p) => p.cpu, accentHex(), "cpu"),
                 series((p) => p.mem, "#34d399", "mem"),
               ],
             }}
@@ -68,7 +69,7 @@ export function HistoryCharts(): React.JSX.Element {
             option={{
               legend: { textStyle: { color: "#9aa6bb" } },
               series: [
-                series((p) => p.netDownBps, "#38bdf8", "down"),
+                series((p) => p.netDownBps, accentHex(), "down"),
                 series((p) => p.netUpBps, "#fbbf24", "up"),
               ],
             }}

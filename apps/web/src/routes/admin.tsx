@@ -3,12 +3,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useSettings } from "../lib/queries";
 import { keys } from "../lib/query";
 import { apiPatch, apiGet } from "../lib/api";
+import { Check, Moon, Sun } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "../components/ui/card";
 import { Input, Field } from "../components/ui/input";
 import { Skeleton } from "../components/ui/skeleton";
 import { StatusBadge } from "../components/ui/status";
-import { useUi } from "../stores/ui";
+import { accents, useUi } from "../stores/ui";
 
 export function SettingsPage(): React.JSX.Element {
   const { data, isLoading } = useSettings();
@@ -17,6 +18,8 @@ export function SettingsPage(): React.JSX.Element {
   const [saved, setSaved] = React.useState(false);
   const theme = useUi((s) => s.theme);
   const setTheme = useUi((s) => s.setTheme);
+  const accent = useUi((s) => s.accent);
+  const setAccent = useUi((s) => s.setAccent);
 
   React.useEffect(() => {
     if (data) {
@@ -51,27 +54,62 @@ export function SettingsPage(): React.JSX.Element {
       <div className="grid gap-2.5 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>General</CardTitle>
+            <CardTitle>Appearance</CardTitle>
           </CardHeader>
-          <CardBody className="grid gap-2.5">
+          <CardBody className="grid gap-3">
             <div className="flex items-center gap-2 text-[13px]">
               <span className="text-ink-2">Theme</span>
-              <div className="ml-auto flex gap-1">
-                {(["dark", "light"] as const).map((t) => (
-                  <Button
-                    key={t}
-                    size="sm"
-                    variant={theme === t ? "default" : "ghost"}
-                    onClick={() => {
-                      setTheme(t);
-                      document.documentElement.classList.toggle("dark", t === "dark");
-                    }}
+              <div className="ml-auto flex gap-1 rounded-xl border border-edge bg-void p-1">
+                {(
+                  [
+                    { value: "dark", label: "Dark", Icon: Moon },
+                    { value: "light", label: "Light", Icon: Sun },
+                  ] as const
+                ).map(({ value, label, Icon }) => (
+                  <button
+                    key={value}
+                    onClick={() => setTheme(value)}
+                    aria-pressed={theme === value}
+                    className={
+                      theme === value
+                        ? "flex items-center gap-1.5 rounded-lg bg-accent/15 px-3 py-1.5 text-[13px] font-medium text-accent-strong"
+                        : "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] text-ink-2 hover:bg-hover hover:text-ink"
+                    }
                   >
-                    {t}
-                  </Button>
+                    <Icon className="size-3.5" aria-hidden />
+                    {label}
+                  </button>
                 ))}
               </div>
             </div>
+            <div className="flex items-center gap-2 text-[13px]">
+              <span className="text-ink-2">Accent color</span>
+              <div className="ml-auto flex gap-1.5" role="radiogroup" aria-label="Accent color">
+                {accents.map((a) => (
+                  <button
+                    key={a.name}
+                    role="radio"
+                    aria-checked={accent === a.name}
+                    title={a.label}
+                    aria-label={`${a.label} accent`}
+                    onClick={() => setAccent(a.name)}
+                    className={
+                      accent === a.name
+                        ? "grid size-7 place-items-center rounded-full border-2 border-ink"
+                        : "grid size-7 place-items-center rounded-full border-2 border-transparent hover:scale-105"
+                    }
+                    style={{ background: a.swatch }}
+                  >
+                    {accent === a.name ? (
+                      <Check className="size-3.5 text-black/70" aria-hidden />
+                    ) : null}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <p className="pt-1 text-[11px] font-semibold uppercase tracking-wide text-ink-3">
+              Alert thresholds (%)
+            </p>
             <form onSubmit={(e) => void save(e)} className="grid gap-2">
               <div className="grid grid-cols-2 gap-2">
                 <Field label="CPU warn %">
@@ -119,7 +157,9 @@ export function SettingsPage(): React.JSX.Element {
               </div>
               <div>
                 <Button type="submit">Save thresholds</Button>{" "}
-                {saved ? <span className="ml-2 text-xs text-emerald-300">Saved</span> : null}
+                {saved ? (
+                  <span className="ml-2 text-xs text-emerald-700 dark:text-emerald-300">Saved</span>
+                ) : null}
               </div>
             </form>
           </CardBody>

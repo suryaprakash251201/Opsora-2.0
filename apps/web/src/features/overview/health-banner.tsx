@@ -52,7 +52,7 @@ export function HealthBanner({ overview }: { overview: OverviewResponse }): Reac
           </span>
           <Link
             to="/alerts"
-            className="rounded-md border border-edge bg-void px-2 py-1 hover:border-white/20"
+            className="rounded-md border border-edge bg-void px-2 py-1 hover:border-ink-3"
           >
             View alerts
           </Link>

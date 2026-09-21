@@ -72,7 +72,7 @@ export function IntegrationsPage(): React.JSX.Element {
               <p>
                 Type: {typeLabels[i.type] ?? i.type} · {i.enabled ? "enabled" : "disabled"}
               </p>
-              {i.error ? <p className="text-amber-300">{i.error}</p> : null}
+              {i.error ? <p className="text-amber-700 dark:text-amber-300">{i.error}</p> : null}
               {i.lastSync ? <p className="num">Last sync {timeAgo(i.lastSync)}</p> : null}
               <p className="truncate text-ink-3">{i.capabilities.join(" · ")}</p>
               <div className="mt-1 flex gap-1.5">
@@ -200,7 +200,7 @@ export function GithubPage(): React.JSX.Element {
                   Open issues: {r.openIssues ?? "—"} · Open PRs: {r.openPRs ?? "—"}
                 </p>
                 <p>Latest release: {r.latestRelease ?? "—"}</p>
-                {r.error ? <p className="text-amber-300">{r.error}</p> : null}
+                {r.error ? <p className="text-amber-700 dark:text-amber-300">{r.error}</p> : null}
               </CardBody>
             </Card>
           ))}

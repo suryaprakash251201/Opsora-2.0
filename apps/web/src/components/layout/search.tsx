@@ -99,7 +99,7 @@ export function SearchDialog(): React.JSX.Element {
                         setOpen(false);
                         nav(h.to);
                       }}
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-white/5"
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] hover:bg-hover"
                     >
                       <span className="truncate text-ink">{h.label}</span>
                       {h.hint ? (
