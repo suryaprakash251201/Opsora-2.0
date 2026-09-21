@@ -1,0 +1,10 @@
+import { describe, expect, it } from "vitest";
+import { cn } from "./cn";
+
+describe("cn", () => {
+  it("merges tailwind classes", () => {
+    expect(cn("px-2", "px-4")).toBe("px-4");
+    const hidden = false;
+    expect(cn("text-ink", hidden && "hidden")).toBe("text-ink");
+  });
+});

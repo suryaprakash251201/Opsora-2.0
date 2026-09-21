@@ -1,0 +1,33 @@
+{
+  "name": "opsora",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Opsora — modern home-lab infrastructure dashboard and control center",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel dev",
+    "dev:web": "pnpm --filter @opsora/web dev",
+    "dev:api": "pnpm --filter @opsora/api dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "pnpm -r test",
+    "test:e2e": "pnpm --filter @opsora/web test:e2e",
+    "db:migrate": "pnpm --filter @opsora/api db:migrate",
+    "setup": "pnpm install && pnpm db:migrate"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.18.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0"
+  }
+}
