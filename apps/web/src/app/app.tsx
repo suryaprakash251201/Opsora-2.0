@@ -8,9 +8,10 @@ import * as React from "react";
 export function App(): React.JSX.Element {
   const theme = useUi((s) => s.theme);
   const accent = useUi((s) => s.accent);
+  const density = useUi((s) => s.density);
   React.useEffect(() => {
-    applyTheme(theme, accent);
-  }, [theme, accent]);
+    applyTheme(theme, accent, density);
+  }, [theme, accent, density]);
   return (
     <QueryProvider>
       <RouterProvider router={router} />

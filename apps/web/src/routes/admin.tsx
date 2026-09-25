@@ -1,12 +1,14 @@
 import * as React from "react";
+import { Link } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSettings } from "../lib/queries";
 import { keys } from "../lib/query";
 import { apiPatch, apiGet } from "../lib/api";
-import { Check, Moon, Sun } from "lucide-react";
+import { Check, Compass, Moon, Sun } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card, CardBody, CardHeader, CardTitle } from "../components/ui/card";
 import { Input, Field } from "../components/ui/input";
+import { PageHeader } from "../components/ui/page-header";
 import { Skeleton } from "../components/ui/skeleton";
 import { StatusBadge } from "../components/ui/status";
 import { accents, useUi } from "../stores/ui";
@@ -20,6 +22,8 @@ export function SettingsPage(): React.JSX.Element {
   const setTheme = useUi((s) => s.setTheme);
   const accent = useUi((s) => s.accent);
   const setAccent = useUi((s) => s.setAccent);
+  const density = useUi((s) => s.density);
+  const setDensity = useUi((s) => s.setDensity);
 
   React.useEffect(() => {
     if (data) {
@@ -44,14 +48,21 @@ export function SettingsPage(): React.JSX.Element {
 
   if (isLoading)
     return (
-      <div className="p-3 md:p-4">
+      <div className="grid gap-3 p-3 md:p-4 lg:p-6">
+        <PageHeader
+          title="Settings"
+          description="Appearance, alert thresholds, and Opsora self-health."
+        />
         <Skeleton className="h-64 w-full" />
       </div>
     );
   return (
-    <div className="grid gap-2.5 p-3 md:p-4">
-      <h1 className="text-base font-semibold tracking-tight">Settings</h1>
-      <div className="grid gap-2.5 lg:grid-cols-2">
+    <div className="grid gap-3 p-3 md:p-4 lg:p-6">
+      <PageHeader
+        title="Settings"
+        description="Appearance, alert thresholds, and Opsora self-health."
+      />
+      <div className="grid gap-3 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Appearance</CardTitle>
@@ -68,6 +79,7 @@ export function SettingsPage(): React.JSX.Element {
                 ).map(({ value, label, Icon }) => (
                   <button
                     key={value}
+                    type="button"
                     onClick={() => setTheme(value)}
                     aria-pressed={theme === value}
                     className={
@@ -88,6 +100,7 @@ export function SettingsPage(): React.JSX.Element {
                 {accents.map((a) => (
                   <button
                     key={a.name}
+                    type="button"
                     role="radio"
                     aria-checked={accent === a.name}
                     title={a.label}
@@ -103,6 +116,34 @@ export function SettingsPage(): React.JSX.Element {
                     {accent === a.name ? (
                       <Check className="size-3.5 text-black/70" aria-hidden />
                     ) : null}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-[13px]">
+              <span className="text-ink-2">
+                Density
+                <span className="ml-1.5 text-[11px] text-ink-3">table rows & cards</span>
+              </span>
+              <div className="ml-auto flex gap-1 rounded-xl border border-edge bg-void p-1">
+                {(
+                  [
+                    ["comfortable", "Comfortable"],
+                    ["compact", "Compact"],
+                  ] as const
+                ).map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setDensity(value)}
+                    aria-pressed={density === value}
+                    className={
+                      density === value
+                        ? "rounded-lg bg-accent/15 px-3 py-1.5 text-[13px] font-medium text-accent-strong"
+                        : "rounded-lg px-3 py-1.5 text-[13px] text-ink-2 hover:bg-hover hover:text-ink"
+                    }
+                  >
+                    {label}
                   </button>
                 ))}
               </div>
@@ -221,8 +262,8 @@ export function ApiPage(): React.JSX.Element {
     "GET /api/settings",
   ];
   return (
-    <div className="grid gap-2.5 p-3 md:p-4">
-      <h1 className="text-base font-semibold tracking-tight">API</h1>
+    <div className="grid gap-3 p-3 md:p-4 lg:p-6">
+      <PageHeader title="API" description="HTTP endpoints exposed by the Opsora API." />
       <Card>
         <CardHeader>
           <CardTitle>Resource endpoints</CardTitle>
@@ -243,19 +284,31 @@ export function ApiPage(): React.JSX.Element {
 
 export function NotFoundPage(): React.JSX.Element {
   return (
-    <div className="p-8 text-center">
-      <p className="text-lg font-semibold">Not found</p>
-      <p className="mt-1 text-sm text-ink-2">This view does not exist.</p>
-      <Button
-        variant="secondary"
-        size="sm"
-        className="mt-4"
-        onClick={() => {
-          window.location.pathname = "/";
-        }}
-      >
-        Back home
-      </Button>
+    <div className="flex min-h-[70vh] items-center justify-center p-4 md:p-8">
+      <div className="flex w-full max-w-lg flex-col items-center justify-center gap-5 rounded-3xl border border-edge/80 bg-panel/80 px-6 py-14 text-center shadow-xl">
+        <span className="grid size-16 place-items-center rounded-2xl border border-edge/80 bg-surface-muted text-ink-3 shadow-sm">
+          <Compass className="size-7" aria-hidden />
+        </span>
+        <div>
+          <p className="num text-4xl font-bold tracking-tight text-accent-strong">404</p>
+          <p className="mt-1 text-sm font-semibold text-ink">This page doesn’t exist</p>
+          <p className="mx-auto mt-1.5 max-w-sm text-xs leading-relaxed text-ink-2">
+            The route you followed isn’t part of Opsora. Check the address, or jump back to the
+            dashboard.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Link
+            to="/"
+            className="inline-flex h-8 items-center rounded-md border border-accent/25 bg-accent/15 px-3 text-[13px] font-medium text-accent-strong transition-all duration-150 hover:bg-accent/25 active:scale-[0.97]"
+          >
+            Back home
+          </Link>
+          <Button variant="ghost" onClick={() => window.history.back()}>
+            Go back
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

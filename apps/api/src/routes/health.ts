@@ -41,6 +41,7 @@ health.get("/overview", async (c) => {
     getGithubSummary(),
   ]);
   const services = listServicesSync();
+  const activeServices = services.filter((s) => s.enabled);
 
   const hostLevels = evaluateHostThresholds({
     cpuPercent: host.cpuPercent,
@@ -48,7 +49,7 @@ health.get("/overview", async (c) => {
     diskPercent: host.diskPercent,
     hostname: host.hostname,
   });
-  const serviceLevels: HealthLevel[] = services.map((s) =>
+  const serviceLevels: HealthLevel[] = activeServices.map((s) =>
     s.status === "up" ? "healthy" : s.status === "unknown" ? "unknown" : "critical",
   );
   const dockerLevels = docker.containers.map(() => "healthy" as const);
@@ -67,8 +68,9 @@ health.get("/overview", async (c) => {
     counts: {
       dockerRunning: docker.running,
       dockerStopped: docker.stopped,
-      servicesUp: services.filter((s) => s.status === "up").length,
+      servicesUp: activeServices.filter((s) => s.status === "up").length,
       servicesTotal: services.length,
+      servicesPaused: services.length - activeServices.length,
       devicesOnline: tailscale.devices.filter((d) => d.online).length,
     },
     integrations: {

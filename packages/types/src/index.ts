@@ -115,6 +115,9 @@ export const ServiceSchema = z.object({
   uptimePercent: z.number().nullable(),
   lastCheck: z.string().nullable(),
   error: z.string().nullable().default(null),
+  enabled: z.boolean().default(true),
+  /** Oldest→newest recent check outcomes (up to 8); empty when no history. */
+  recentChecks: z.array(ServiceStatusSchema).default([]),
 });
 export type Service = z.infer<typeof ServiceSchema>;
 
@@ -245,3 +248,194 @@ export const OverviewSchema = z.object({
   updatedAt: z.string(),
 });
 export type Overview = z.infer<typeof OverviewSchema>;
+
+// ── GitHub repository monitor ──────────────────────────────────────────────
+
+export const GithubRepoSchema = z.object({
+  fullName: z.string(),
+  description: z.string().nullable().default(null),
+  stars: z.number().nullable().default(null),
+  forks: z.number().nullable().default(null),
+  watchers: z.number().nullable().default(null),
+  /** Issues only — PRs are subtracted when the breakdown is known. */
+  openIssues: z.number().nullable().default(null),
+  openPRs: z.number().nullable().default(null),
+  language: z.string().nullable().default(null),
+  defaultBranch: z.string().nullable().default(null),
+  lastPushAt: z.string().nullable().default(null),
+  latestRelease: z.string().nullable().default(null),
+  latestReleaseAt: z.string().nullable().default(null),
+  /** Latest Actions run: success / failure / cancelled / in_progress / … — null when unknown. */
+  workflowStatus: z.string().nullable().default(null),
+  archived: z.boolean().default(false),
+  private: z.boolean().default(false),
+  url: z.string().default(""),
+  updatedAt: z.string(),
+  error: z.string().nullable().default(null),
+});
+export type GithubRepo = z.infer<typeof GithubRepoSchema>;
+
+export const GithubSummarySchema = z.object({
+  status: ConnectionStatusSchema,
+  repos: z.array(GithubRepoSchema),
+  error: z.string().nullable().default(null),
+  updatedAt: z.string(),
+});
+export type GithubSummary = z.infer<typeof GithubSummarySchema>;
+
+// ── Uptime monitor ─────────────────────────────────────────────────────────
+
+export const UptimeWindowSchema = z.enum(["1h", "24h", "7d"]);
+export type UptimeWindow = z.infer<typeof UptimeWindowSchema>;
+
+export const UptimeBucketSchema = z.object({
+  /** Bucket start (ISO). */
+  t: z.string(),
+  /** Worst status observed in the bucket; unknown when no checks landed. */
+  status: ServiceStatusSchema,
+  avgMs: z.number().nullable().default(null),
+  count: z.number().default(0),
+});
+export type UptimeBucket = z.infer<typeof UptimeBucketSchema>;
+
+export const UptimeIncidentSchema = z.object({
+  id: z.string(),
+  serviceId: z.string(),
+  serviceName: z.string(),
+  status: z.enum(["down", "degraded"]),
+  startedAt: z.string(),
+  /** Null while the incident is ongoing. */
+  endedAt: z.string().nullable().default(null),
+  /** Null while ongoing — the UI computes elapsed time live. */
+  durationMs: z.number().nullable().default(null),
+  ongoing: z.boolean().default(false),
+});
+export type UptimeIncident = z.infer<typeof UptimeIncidentSchema>;
+
+export const ServiceUptimeSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  url: z.string().nullable(),
+  status: ServiceStatusSchema,
+  enabled: z.boolean().default(true),
+  lastCheck: z.string().nullable().default(null),
+  error: z.string().nullable().default(null),
+  /** Uptime % per trailing window; null when the window has no samples. */
+  uptime: z.object({
+    "1h": z.number().nullable(),
+    "24h": z.number().nullable(),
+    "7d": z.number().nullable(),
+  }),
+  avgLatencyMs: z.number().nullable().default(null),
+  /** Timeline buckets for the selected window (oldest→newest). */
+  buckets: z.array(UptimeBucketSchema).default([]),
+  incidentCount: z.number().default(0),
+});
+export type ServiceUptime = z.infer<typeof ServiceUptimeSchema>;
+
+export const UptimeReportSchema = z.object({
+  window: UptimeWindowSchema,
+  services: z.array(ServiceUptimeSchema),
+  /** Ongoing first, then newest; derived from real check transitions. */
+  incidents: z.array(UptimeIncidentSchema).default([]),
+  overallUptime: z.number().nullable().default(null),
+  updatedAt: z.string(),
+});
+export type UptimeReport = z.infer<typeof UptimeReportSchema>;
+
+// ── Live network topology (provider-agnostic Opsora domain) ─────────────────
+// Normalized from real sources (agents, discovery, tailscale, docker).
+// Absent metrics are null/unknown — never fabricated.
+
+export const NetworkDeviceTypeSchema = z.enum([
+  "server",
+  "desktop",
+  "laptop",
+  "mobile",
+  "router",
+  "gateway",
+  "container",
+  "vm",
+  "network",
+  "unknown",
+]);
+export type NetworkDeviceType = z.infer<typeof NetworkDeviceTypeSchema>;
+
+export const NetworkDeviceStatusSchema = z.enum(["online", "degraded", "offline", "unknown"]);
+export type NetworkDeviceStatus = z.infer<typeof NetworkDeviceStatusSchema>;
+
+export const NetworkDeviceSchema = z.object({
+  id: z.string(),
+  hostname: z.string(),
+  displayName: z.string().nullable().default(null),
+  type: NetworkDeviceTypeSchema.default("unknown"),
+  status: NetworkDeviceStatusSchema.default("unknown"),
+  ipAddresses: z.array(z.string()).default([]),
+  primaryIp: z.string().nullable().default(null),
+  os: z.string().nullable().default(null),
+  platform: z.string().nullable().default(null),
+  iface: z.string().nullable().default(null),
+  lastSeen: z.string().nullable().default(null),
+  latencyMs: z.number().nullable().default(null),
+  packetLossPercent: z.number().nullable().default(null),
+  cpuPercent: z.number().nullable().default(null),
+  memoryPercent: z.number().nullable().default(null),
+  diskPercent: z.number().nullable().default(null),
+  source: z
+    .enum(["local", "agent", "static", "tailscale", "discovery", "docker", "system"])
+    .default("static"),
+});
+export type NetworkDevice = z.infer<typeof NetworkDeviceSchema>;
+
+export const NetworkConnectionStatusSchema = z.enum(["active", "degraded", "inactive", "unknown"]);
+export type NetworkConnectionStatus = z.infer<typeof NetworkConnectionStatusSchema>;
+
+export const NetworkConnectionTypeSchema = z.enum(["p2p", "direct", "relay", "routed", "unknown"]);
+export type NetworkConnectionType = z.infer<typeof NetworkConnectionTypeSchema>;
+
+export const NetworkConnectionSchema = z.object({
+  id: z.string(),
+  sourceId: z.string(),
+  targetId: z.string(),
+  status: NetworkConnectionStatusSchema.default("unknown"),
+  type: NetworkConnectionTypeSchema.default("unknown"),
+  latencyMs: z.number().nullable().default(null),
+  packetLossPercent: z.number().nullable().default(null),
+  bytesSent: z.number().nullable().default(null),
+  bytesReceived: z.number().nullable().default(null),
+  durationSecs: z.number().nullable().default(null),
+  iface: z.string().nullable().default(null),
+  localEndpoint: z.string().nullable().default(null),
+  remoteEndpoint: z.string().nullable().default(null),
+  lastActivity: z.string().nullable().default(null),
+});
+export type NetworkConnection = z.infer<typeof NetworkConnectionSchema>;
+
+export const NetworkTopologySchema = z.object({
+  devices: z.array(NetworkDeviceSchema).default([]),
+  connections: z.array(NetworkConnectionSchema).default([]),
+  updatedAt: z.string(),
+});
+export type NetworkTopology = z.infer<typeof NetworkTopologySchema>;
+
+export const NetworkLiveEventTypeSchema = z.enum([
+  "device.status",
+  "connection.updated",
+  "device.latency",
+  "probe.completed",
+]);
+export type NetworkLiveEventType = z.infer<typeof NetworkLiveEventTypeSchema>;
+
+export const NetworkLiveEventSchema = z.object({
+  id: z.string(),
+  type: NetworkLiveEventTypeSchema,
+  deviceId: z.string().nullable().default(null),
+  connectionId: z.string().nullable().default(null),
+  status: z.string().nullable().default(null),
+  latencyMs: z.number().nullable().default(null),
+  connectionType: z.string().nullable().default(null),
+  message: z.string(),
+  severity: AlertSeveritySchema.default("info"),
+  timestamp: z.string(),
+});
+export type NetworkLiveEvent = z.infer<typeof NetworkLiveEventSchema>;

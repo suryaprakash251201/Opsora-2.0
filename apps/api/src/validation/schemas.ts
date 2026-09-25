@@ -17,6 +17,10 @@ export const integrationCreateSchema = z.object({
   config: z.record(z.string(), z.unknown()).default({}),
 });
 
+export const serviceUpdateSchema = z.object({
+  enabled: z.boolean(),
+});
+
 export const serviceCreateSchema = z.object({
   name: z.string().min(1).max(120),
   url: z.string().url().nullable().default(null),

@@ -30,6 +30,106 @@ function socketGet<T>(socketPath: string, apiPath: string, timeoutMs = 4_000): P
   });
 }
 
+/** Clamp the `tail` query param to a sane range (10–500, default 100). */
+export function clampTail(raw: string | null | undefined): number {
+  const n = Number(raw ?? "100");
+  if (!Number.isFinite(n)) return 100;
+  return Math.min(500, Math.max(10, Math.floor(n)));
+}
+
+/**
+ * De-multiplex a Docker container-logs payload.
+ * Non-TTY containers use an 8-byte framed stream (1B stream type, 3B zero,
+ * 4B big-endian size, then payload); TTY containers return raw text.
+ * Unknown/truncated input falls back to raw UTF-8 — never throws.
+ */
+export function demuxDockerStream(buf: Buffer): string {
+  if (buf.length === 0) return "";
+  const chunks: string[] = [];
+  let i = 0;
+  let framed = false;
+  while (i + 8 <= buf.length) {
+    const type = buf[i];
+    if (
+      (type !== 1 && type !== 2) ||
+      buf[i + 1] !== 0 ||
+      buf[i + 2] !== 0 ||
+      buf[i + 3] !== 0
+    ) {
+      break;
+    }
+    const size = buf.readUInt32BE(i + 4);
+    if (size > 16 * 1024 * 1024 || i + 8 + size > buf.length) break;
+    chunks.push(buf.subarray(i + 8, i + 8 + size).toString("utf8"));
+    i += 8 + size;
+    framed = true;
+  }
+  if (!framed) return buf.toString("utf8");
+  // Fully framed, or framed with a trailing partial chunk — keep everything.
+  return chunks.join("") + buf.subarray(i).toString("utf8");
+}
+
+export interface DockerError extends Error {
+  code: "not_connected" | "not_found" | "unavailable";
+}
+
+function dockerError(
+  code: DockerError["code"],
+  message: string,
+): DockerError {
+  return Object.assign(new Error(message), { code });
+}
+
+function socketGetText(socketPath: string, apiPath: string, timeoutMs = 4_000): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const req = http.request({ socketPath, path: apiPath, method: "GET" }, (res) => {
+      const parts: Buffer[] = [];
+      res.on("data", (c: Buffer) => parts.push(Buffer.from(c)));
+      res.on("end", () => {
+        const body = Buffer.concat(parts);
+        if (res.statusCode === 404) {
+          reject(dockerError("not_found", "container not found"));
+          return;
+        }
+        if (res.statusCode && res.statusCode >= 400) {
+          reject(
+            dockerError(
+              "unavailable",
+              `docker api ${res.statusCode}: ${body.subarray(0, 200).toString("utf8")}`,
+            ),
+          );
+          return;
+        }
+        resolve(body);
+      });
+    });
+    req.on("error", (e) =>
+      reject(dockerError("unavailable", e instanceof Error ? e.message : "docker unavailable")),
+    );
+    req.setTimeout(timeoutMs, () => {
+      req.destroy(dockerError("unavailable", "docker socket timeout"));
+    });
+    req.end();
+  });
+}
+
+/**
+ * Fetch real container logs from the Docker socket.
+ * Throws a coded DockerError (`not_connected` when the socket is missing,
+ * `not_found` for unknown containers, `unavailable` otherwise) so routes
+ * can answer honestly instead of fabricating output.
+ */
+export async function getContainerLogs(id: string, tail = 100): Promise<string> {
+  if (!existsSync(SOCKET)) {
+    throw dockerError("not_connected", `Docker socket not found at ${SOCKET}`);
+  }
+  const raw = await socketGetText(
+    SOCKET,
+    `/v1.43/containers/${encodeURIComponent(id)}/logs?stdout=1&stderr=1&tail=${clampTail(String(tail))}`,
+  );
+  return demuxDockerStream(raw);
+}
+
 interface DockerPsItem {
   Id: string;
   Names?: string[];

@@ -1,0 +1,30 @@
+services:
+  opsora:
+    build:
+      context: .
+      target: app
+    image: opsora:latest
+    container_name: opsora
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # container-correct values win over anything in .env
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4100
+      DATABASE_URL: /data/opsora.db
+      DOCKER_SOCKET: /var/run/docker.sock
+    ports:
+      - "${OPSORA_WEB_PORT:-8080}:80"   # dashboard (nginx)
+      - "${OPSORA_API_PORT:-4100}:4100" # API + agent ingest (POST /api/servers/report)
+    volumes:
+      - opsora-data:/data # SQLite lives at /data/opsora.db
+      # Gives the Docker page real container data. WARNING: the Docker socket
+      # is root-equivalent on the host — delete this line if you don't want it
+      # (the UI then honestly shows "Not Connected").
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+volumes:
+  opsora-data:

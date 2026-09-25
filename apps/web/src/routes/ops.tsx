@@ -3,6 +3,7 @@ import { timeAgo } from "@opsora/utils";
 import { useActivity, useEvents } from "../lib/queries";
 import { Card, CardBody, CardHeader, CardTitle } from "../components/ui/card";
 import { EmptyState, ErrorState } from "../components/ui/states";
+import { PageHeader } from "../components/ui/page-header";
 import { Skeleton } from "../components/ui/skeleton";
 import { StatusBadge } from "../components/ui/status";
 
@@ -88,8 +89,11 @@ function Feed({
 export function ActivityPage(): React.JSX.Element {
   const activity = useActivity();
   return (
-    <div className="grid gap-2.5 p-3 md:p-4">
-      <h1 className="text-base font-semibold tracking-tight">Activity</h1>
+    <div className="grid gap-3 p-3 md:p-4 lg:p-6">
+      <PageHeader
+        title="Activity"
+        description="Chronological infrastructure changes and operator actions."
+      />
       <Feed
         title="Infrastructure events"
         items={activity.data?.activity}
@@ -103,8 +107,11 @@ export function ActivityPage(): React.JSX.Element {
 
 export function LogsPage(): React.JSX.Element {
   return (
-    <div className="grid gap-2.5 p-3 md:p-4">
-      <h1 className="text-base font-semibold tracking-tight">Logs</h1>
+    <div className="grid gap-3 p-3 md:p-4 lg:p-6">
+      <PageHeader
+        title="Logs"
+        description="Centralized log ingestion — sources appear as they connect."
+      />
       <Card>
         <CardHeader>
           <CardTitle>Log aggregation</CardTitle>
@@ -124,8 +131,11 @@ export function LogsPage(): React.JSX.Element {
 export function MonitoringPage(): React.JSX.Element {
   const events = useEvents();
   return (
-    <div className="grid gap-2.5 p-3 md:p-4">
-      <h1 className="text-base font-semibold tracking-tight">Monitoring</h1>
+    <div className="grid gap-3 p-3 md:p-4 lg:p-6">
+      <PageHeader
+        title="Monitoring"
+        description="Live event stream over SSE with severity rollups."
+      />
       <Feed
         title="Event stream"
         items={events.data?.events}

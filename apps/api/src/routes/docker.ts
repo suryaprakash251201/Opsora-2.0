@@ -1,8 +1,39 @@
 import { Hono } from "hono";
-import { dockerAction, getDockerSummary } from "../adapters/docker.js";
+import {
+  clampTail,
+  dockerAction,
+  getContainerLogs,
+  getDockerSummary,
+} from "../adapters/docker.js";
 import { bus } from "../realtime/bus.js";
 
 const docker = new Hono();
+
+const LOG_ID_RE = /^[A-Za-z0-9_.-]{1,128}$/;
+
+// Real container logs — honest 4xx/5xx when the daemon or container is
+// unavailable, never fabricated output (data-honesty rule).
+docker.get("/containers/:id/logs", async (c) => {
+  const id = c.req.param("id");
+  if (!id || !LOG_ID_RE.test(id)) {
+    return c.json({ error: "invalid_id" }, 400);
+  }
+  const tail = clampTail(c.req.query("tail"));
+  try {
+    const logs = await getContainerLogs(id, tail);
+    return c.json({ id, logs, tail, updatedAt: new Date().toISOString() });
+  } catch (err) {
+    const code = (err as { code?: string }).code;
+    const message = err instanceof Error ? err.message : "failed";
+    if (code === "not_connected") {
+      return c.json({ error: "docker_not_connected", message }, 503);
+    }
+    if (code === "not_found") {
+      return c.json({ error: "container_not_found", message }, 404);
+    }
+    return c.json({ error: "docker_unavailable", message }, 502);
+  }
+});
 
 docker.get("/containers", async (c) => {
   return c.json(await getDockerSummary());

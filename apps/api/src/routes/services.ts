@@ -1,16 +1,25 @@
 import { Hono } from "hono";
 import { zValidator, validBody } from "../lib/validator.js";
-import { serviceCreateSchema } from "../validation/schemas.js";
+import { serviceCreateSchema, serviceUpdateSchema } from "../validation/schemas.js";
 import { getDb } from "../db/client.js";
 import { services } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { listServicesSync, runServiceChecks } from "../services/serviceChecker.js";
+import { getUptimeReport } from "../services/uptime.js";
+import type { UptimeWindow } from "@opsora/types";
 
 const router = new Hono();
 
 router.get("/", (c) => {
   return c.json({ services: listServicesSync(), updatedAt: new Date().toISOString() });
+});
+
+/** Built-in uptime monitor: windows, timeline buckets, incidents. */
+router.get("/uptime", (c) => {
+  const w = c.req.query("window");
+  const win: UptimeWindow = w === "1h" || w === "7d" ? w : "24h";
+  return c.json(getUptimeReport(win));
 });
 
 router.post("/check", async (c) => {
@@ -43,6 +52,20 @@ router.post("/", zValidator("json", serviceCreateSchema), (c) => {
     })
     .run();
   return c.json({ id }, 201);
+});
+
+router.patch("/:id", zValidator("json", serviceUpdateSchema), (c) => {
+  const id = c.req.param("id");
+  const body = validBody<{ enabled: boolean }>(c);
+  const db = getDb();
+  const existing = db.select({ id: services.id }).from(services).where(eq(services.id, id)).get();
+  if (!existing) return c.json({ error: "service_not_found" }, 404);
+  const now = new Date().toISOString();
+  db.update(services)
+    .set({ enabled: body.enabled, updatedAt: now })
+    .where(eq(services.id, id))
+    .run();
+  return c.json({ id, enabled: body.enabled, updatedAt: now });
 });
 
 router.delete("/:id", (c) => {

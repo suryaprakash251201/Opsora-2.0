@@ -91,6 +91,14 @@ export const auditLogs = sqliteTable("audit_logs", {
   detailJson: text("detail_json").notNull().default("{}"),
 });
 
+export const serviceChecks = sqliteTable("service_checks", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  serviceId: text("service_id").notNull(),
+  ts: text("ts").notNull(),
+  status: text("status").notNull(),
+  latencyMs: integer("latency_ms"),
+});
+
 export const metricSnapshots = sqliteTable("metric_snapshots", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   ts: text("ts").notNull(),

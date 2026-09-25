@@ -4,6 +4,7 @@ import type {
   Device,
   DnsSummary,
   DockerSummary,
+  GithubRepo,
   Host,
   InfraEvent,
   Integration,
@@ -11,10 +12,12 @@ import type {
   NetworkSummary,
   Service,
   StorageResource,
+  UptimeReport,
+  UptimeWindow,
 } from "@opsora/types";
 import { useQuery } from "@tanstack/react-query";
 import { queryPolicy } from "@opsora/config";
-import { apiGet, apiPost } from "./api";
+import { apiGet, apiPatch, apiPost } from "./api";
 import { keys } from "./query";
 
 export interface OverviewResponse {
@@ -32,6 +35,7 @@ export interface OverviewResponse {
     dockerStopped: number;
     servicesUp: number;
     servicesTotal: number;
+    servicesPaused: number;
     devicesOnline: number;
   };
   integrations: Record<string, string>;
@@ -177,24 +181,34 @@ export function useIntegrations() {
   });
 }
 
+export interface GithubResponse {
+  status: string;
+  repos: GithubRepo[];
+  error: string | null;
+  updatedAt: string;
+}
+
+export async function fetchGithub(force = false): Promise<GithubResponse> {
+  return apiGet<GithubResponse>(`/api/github/repos${force ? "?refresh=1" : ""}`);
+}
+
 export function useGithub() {
   return useQuery({
     queryKey: keys.github,
-    queryFn: () =>
-      apiGet<{
-        status: string;
-        repos: {
-          fullName: string;
-          openIssues: number | null;
-          openPRs: number | null;
-          latestRelease: string | null;
-          error: string | null;
-        }[];
-        error: string | null;
-        updatedAt: string;
-      }>("/api/github/repos"),
-    staleTime: queryPolicy.external.staleTime,
-    refetchInterval: queryPolicy.external.refetchInterval,
+    queryFn: () => fetchGithub(),
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+    retry: 1,
+  });
+}
+
+export function useUptime(window: UptimeWindow = "24h") {
+  return useQuery({
+    queryKey: keys.uptime(window),
+    queryFn: () => apiGet<UptimeReport>(`/api/services/uptime?window=${window}`),
+    staleTime: 15_000,
+    refetchInterval: 30_000,
+    retry: 1,
   });
 }
 
@@ -205,6 +219,10 @@ export function useSettings() {
       apiGet<{ settings: Record<string, unknown>; updatedAt: string }>("/api/settings"),
     staleTime: 60_000,
   });
+}
+
+export async function setServiceEnabled(id: string, enabled: boolean): Promise<void> {
+  await apiPatch(`/api/services/${encodeURIComponent(id)}`, { enabled });
 }
 
 export async function triggerServiceCheck(): Promise<void> {

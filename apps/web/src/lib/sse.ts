@@ -25,6 +25,11 @@ export function useEventsStream(enabled = true): {
         if (evt.category === "alert") void qc.invalidateQueries({ queryKey: keys.alerts() });
         if (evt.category === "service") void qc.invalidateQueries({ queryKey: keys.services });
         if (evt.category === "docker") void qc.invalidateQueries({ queryKey: keys.docker });
+        if (evt.category === "network") {
+          void qc.invalidateQueries({ queryKey: keys.networkLive });
+          void qc.invalidateQueries({ queryKey: keys.networkEvents });
+          void qc.invalidateQueries({ queryKey: keys.network });
+        }
         void qc.invalidateQueries({ queryKey: keys.events });
         void qc.invalidateQueries({ queryKey: keys.activity });
         void qc.invalidateQueries({ queryKey: keys.overview });

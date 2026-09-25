@@ -9,8 +9,10 @@ import { DockerPage } from "../routes/docker";
 import { HomePage } from "../routes/home";
 import { GithubPage, IntegrationDetailPage, IntegrationsPage } from "../routes/integrations";
 import { NetworkPage } from "../routes/network";
+import { NetworkLivePage } from "../features/network/pages/NetworkLivePage";
 import { ServersPage } from "../routes/servers";
 import { ServicesPage } from "../routes/services";
+import { UptimePage } from "../routes/uptime";
 import { StoragePage } from "../routes/storage";
 
 export const router = createBrowserRouter([
@@ -21,8 +23,10 @@ export const router = createBrowserRouter([
       { path: "/servers", element: <ServersPage /> },
       { path: "/devices", element: <DevicesPage /> },
       { path: "/network", element: <NetworkPage /> },
+      { path: "/network/live", element: <NetworkLivePage /> },
       { path: "/docker", element: <DockerPage /> },
       { path: "/services", element: <ServicesPage /> },
+      { path: "/uptime", element: <UptimePage /> },
       { path: "/storage", element: <StoragePage /> },
       { path: "/dns", element: <DnsPage /> },
       { path: "/monitoring", element: <MonitoringPage /> },

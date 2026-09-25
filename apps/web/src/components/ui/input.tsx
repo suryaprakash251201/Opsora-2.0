@@ -8,7 +8,7 @@ export function Input({
   return (
     <input
       className={cn(
-        "h-8 w-full rounded-md border border-edge bg-void px-2.5 text-[13px] text-ink placeholder:text-ink-3 focus:border-accent/60 focus:outline-none",
+        "h-9 w-full rounded-lg border border-edge/80 bg-surface-muted/70 px-3 text-[13px] text-ink shadow-xs transition-colors placeholder:text-ink-3 hover:border-ink-3/50 focus:border-accent/70 focus:bg-surface",
         className,
       )}
       {...props}
@@ -26,7 +26,10 @@ export function Field({
   htmlFor?: string;
 }): React.JSX.Element {
   return (
-    <label htmlFor={htmlFor} className="grid gap-1.5 text-xs font-medium text-ink-2">
+    <label
+      htmlFor={htmlFor}
+      className="grid gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-3"
+    >
       {label}
       {children}
     </label>

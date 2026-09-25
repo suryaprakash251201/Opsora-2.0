@@ -27,17 +27,19 @@ function chartChrome(theme: "dark" | "light"): {
   tooltipText: string;
 } {
   return theme === "dark"
-    ? { text: "#9aa6bb", edge: "#1e2635", tooltipBg: "#131926", tooltipText: "#e8edf5" }
-    : { text: "#64748b", edge: "#dfe5ee", tooltipBg: "#ffffff", tooltipText: "#0f172a" };
+    ? { text: "#a8b6ce", edge: "#21304a", tooltipBg: "#111b2b", tooltipText: "#edf3ff" }
+    : { text: "#475569", edge: "#dce4ee", tooltipBg: "#ffffff", tooltipText: "#0f172a" };
 }
 
 /** Minimal Apache ECharts wrapper ( §28 ). Dark-first, reduced-motion aware. */
 export function EChart({
   option,
   height = 220,
+  ariaLabel = "Infrastructure telemetry chart",
 }: {
   option: echarts.EChartsCoreOption;
   height?: number;
+  ariaLabel?: string;
 }): React.JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
   const theme = useUi((s) => s.theme);
@@ -81,7 +83,7 @@ export function EChart({
   }, [ec, option, theme]);
 
   return (
-    <div ref={ref} style={{ height, width: "100%" }} role="img" aria-label="Infrastructure chart">
+    <div ref={ref} style={{ height, width: "100%" }} role="img" aria-label={ariaLabel}>
       {!ec ? (
         <div className="grid h-full place-items-center text-xs text-ink-3">Loading chart…</div>
       ) : null}

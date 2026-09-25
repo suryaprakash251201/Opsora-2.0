@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { getDb } from "../db/client.js";
 import { alerts } from "../db/schema.js";
 import { bus } from "../realtime/bus.js";
+import { notifyAlert } from "./notifier.js";
 
 export interface Thresholds {
   cpuWarn: number;
@@ -118,6 +119,13 @@ export function raiseAlert(input: {
     message: alert.title,
     severity: alert.severity,
   });
+  // Best-effort outbound delivery; never blocks alert creation.
+  notifyAlert({
+    title: alert.title,
+    severity: alert.severity,
+    resource: alert.resource,
+    detail: alert.description,
+  });
   return alert;
 }
 
@@ -148,3 +156,19 @@ export function setAlertStatus(id: string, status: Alert["status"]): boolean {
   db.update(alerts).set({ status, updatedAt: now }).where(eq(alerts.id, id)).run();
   return true;
 }
+
+export function setBulkAlertStatus(ids: string[] | undefined, status: Alert["status"]): number {
+  const db = getDb();
+  const now = new Date().toISOString();
+  if (ids && ids.length > 0) {
+    let count = 0;
+    for (const id of ids) {
+      const res = db.update(alerts).set({ status, updatedAt: now }).where(eq(alerts.id, id)).run();
+      if (res.changes > 0) count += res.changes;
+    }
+    return count;
+  }
+  const res = db.update(alerts).set({ status, updatedAt: now }).where(eq(alerts.status, "active")).run();
+  return res.changes;
+}
+

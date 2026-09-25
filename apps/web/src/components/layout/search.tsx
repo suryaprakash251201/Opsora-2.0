@@ -62,8 +62,12 @@ export function SearchDialog(): React.JSX.Element {
   return (
     <BaseDialog.Root open={open} onOpenChange={(v) => setOpen(v)}>
       <BaseDialog.Portal>
-        <BaseDialog.Backdrop className="fixed inset-0 z-50 bg-black/70" />
-        <BaseDialog.Popup className="fixed left-1/2 top-[12vh] z-50 w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 rounded-lg border border-edge bg-panel shadow-2xl">
+        <BaseDialog.Backdrop className="backdrop-in fixed inset-0 z-50 bg-black/70" />
+        <BaseDialog.Popup className="dialog-drop-in fixed left-1/2 top-[12vh] z-50 w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 overflow-hidden rounded-2xl border border-edge/80 bg-panel shadow-2xl">
+          <BaseDialog.Title className="sr-only">Search Opsora</BaseDialog.Title>
+          <BaseDialog.Description className="sr-only">
+            Search across servers, containers, services, devices, and alerts.
+          </BaseDialog.Description>
           <div className="border-b border-edge p-2">
             <Input
               autoFocus
@@ -71,9 +75,13 @@ export function SearchDialog(): React.JSX.Element {
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search servers, containers, services, devices, alerts…"
               aria-label="Global search"
+              role="combobox"
+              aria-expanded="true"
+              aria-controls="opsora-search-results"
             />
           </div>
           <div
+            id="opsora-search-results"
             className="max-h-[50vh] overflow-y-auto p-2"
             role="listbox"
             aria-label="Search results"

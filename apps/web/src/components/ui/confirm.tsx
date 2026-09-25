@@ -25,10 +25,10 @@ export function ConfirmDialog({
   return (
     <BaseDialog.Root open={open} onOpenChange={(v) => onOpenChange(v)}>
       <BaseDialog.Portal>
-        <BaseDialog.Backdrop className="fixed inset-0 z-50 bg-black/70" />
-        <BaseDialog.Popup className="fixed left-1/2 top-1/2 z-50 w-[min(420px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-edge bg-panel p-5 shadow-2xl">
+        <BaseDialog.Backdrop className="backdrop-in fixed inset-0 z-50 bg-black/70" />
+        <BaseDialog.Popup className="dialog-in fixed left-1/2 top-1/2 z-50 w-[min(420px,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-edge bg-panel p-5 shadow-2xl">
           <div className="flex items-start gap-3">
-            <span className="rounded-md bg-red-500/10 p-2 text-red-600 dark:text-red-300">
+            <span className="rounded-md bg-rose-500/10 p-2.5 text-rose-600 dark:text-rose-300">
               <TriangleAlert className="size-4" aria-hidden />
             </span>
             <div className="grid gap-1">

@@ -1,0 +1,34 @@
+/* Live Network topology canvas effects. Restrained by design: thin strokes,
+   slow dash drift for active edges only. Honors prefers-reduced-motion. */
+
+@keyframes nl-dash-drift {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+.nl-edge-active {
+  stroke-dasharray: 5 7;
+  animation: nl-dash-drift 1.6s linear infinite;
+}
+
+.nl-edge-degraded {
+  stroke-dasharray: 7 5;
+  animation: nl-dash-drift 2.6s linear infinite;
+}
+
+.nl-anim-paused .nl-edge-active,
+.nl-anim-paused .nl-edge-degraded {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nl-edge-active,
+  .nl-edge-degraded {
+    animation: none;
+  }
+}
+
+.nl-node-card {
+  transition: opacity 160ms ease, border-color 160ms ease;
+}

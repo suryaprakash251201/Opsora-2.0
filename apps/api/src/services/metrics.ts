@@ -1,8 +1,11 @@
 import type { Host, MetricPoint } from "@opsora/types";
+import { lt } from "drizzle-orm";
 import { execFile } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import { promisify } from "node:util";
+import { getDb } from "../db/client.js";
+import { metricSnapshots } from "../db/schema.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -152,6 +155,52 @@ export async function sampleHost(): Promise<Host> {
   };
 }
 
+const PERSIST_RETENTION_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Best-effort persistence so charts survive API restarts.
+ * Never throws — the in-memory ring stays the source of truth.
+ */
+function persistPoint(point: MetricPoint): void {
+  try {
+    const db = getDb();
+    db.insert(metricSnapshots)
+      .values({
+        ts: point.t,
+        cpu: point.cpu,
+        mem: point.mem,
+        netDownBps: point.netDownBps,
+        netUpBps: point.netUpBps,
+      })
+      .run();
+    const cutoff = new Date(Date.now() - PERSIST_RETENTION_MS).toISOString();
+    db.delete(metricSnapshots).where(lt(metricSnapshots.ts, cutoff)).run();
+  } catch {
+    /* persistence unavailable — memory ring still serves */
+  }
+}
+
+function loadPersisted(sinceMs: number): MetricPoint[] {
+  try {
+    const db = getDb();
+    const rows = db.select().from(metricSnapshots).all();
+    return rows
+      .filter((r) => new Date(r.ts).getTime() >= sinceMs)
+      .map((r) => ({
+        t: r.ts,
+        cpu: r.cpu,
+        mem: r.mem,
+        netDownBps: r.netDownBps,
+        netUpBps: r.netUpBps,
+        // NOTE: metric_snapshots predates the disk field — persisted
+        // points honestly report disk as unknown instead of inventing it.
+        disk: null as number | null,
+      }));
+  } catch {
+    return [];
+  }
+}
+
 /** Append a point to the in-memory history ring (called by the sampler loop). */
 export async function sampleAndStore(): Promise<MetricPoint> {
   const host = await sampleHost();
@@ -166,6 +215,7 @@ export async function sampleAndStore(): Promise<MetricPoint> {
   };
   history.push(point);
   if (history.length > HISTORY_MAX) history.splice(0, history.length - HISTORY_MAX);
+  persistPoint(point);
   return point;
 }
 
@@ -173,7 +223,13 @@ export function getHistory(range: string): MetricPoint[] {
   const minutes =
     range === "15m" ? 15 : range === "1h" ? 60 : range === "6h" ? 360 : range === "24h" ? 1440 : 60;
   const since = Date.now() - minutes * 60_000;
-  return history.filter((p) => new Date(p.t).getTime() >= since);
+  // Merge persisted snapshots with the live ring; live points win on ties.
+  const byTime = new Map<string, MetricPoint>();
+  for (const p of loadPersisted(since)) byTime.set(p.t, p);
+  for (const p of history) {
+    if (new Date(p.t).getTime() >= since) byTime.set(p.t, p);
+  }
+  return [...byTime.values()].sort((a, b) => new Date(a.t).getTime() - new Date(b.t).getTime());
 }
 
 export function latestPoint(): MetricPoint | null {
